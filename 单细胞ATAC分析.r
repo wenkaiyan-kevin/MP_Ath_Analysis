@@ -61,7 +61,7 @@ rep2 <- CreateSeuratObject(
   min.cells = 1,
   meta.data = rep2_metadata
 )
-
+rep2 <- RenameCells(object = rep2, new.names = gsub("-1","-2",colnames(rep2)))
 rep2$lib <- 'rep2'
 
 rep2_fragment.path <- '/gss1/home/yanwk/ywk_work/5_other_Analysis/3_MP_Ath_analysis/3_ATAC_cellranger/sNucATAC-seq_rep2/outs/fragments.tsv.gz'
