@@ -61,7 +61,7 @@ rep2 <- CreateSeuratObject(
   min.cells = 1,
   meta.data = rep2_metadata
 )
-rep2 <- RenameCells(object = rep2, new.names = gsub("-1","-2",colnames(rep2)))
+
 rep2$lib <- 'rep2'
 
 rep2_fragment.path <- '/gss1/home/yanwk/ywk_work/5_other_Analysis/3_MP_Ath_analysis/3_ATAC_cellranger/sNucATAC-seq_rep2/outs/fragments.tsv.gz'
@@ -73,6 +73,7 @@ rep2 <- subset(rep2, subset = peak_region_fragments > 1000 &
                               peak_region_fragments < 20000 & 
                               pct_reads_in_peaks > 15 & 
                               nucleosome_signal < 10)
+rep2 <- RenameCells(object = rep2, new.names = gsub("-1","-2",colnames(rep2)))
 
 rep2 <- RunTFIDF(rep2)
 rep2 <- FindTopFeatures(rep2, min.cutoff = 'q0')
@@ -126,7 +127,7 @@ atac_combined <- FindNeighbors(object = atac_combined, reduction = 'harmony', di
 atac_combined <- FindClusters(object = atac_combined,  verbose = FALSE, algorithm = 3)
 #atac_combined <- FindClusters(object = atac_combined, verbose = FALSE, algorithm = 3, resolution = 0.5)
 
-p3 <- DimPlot( object=atac_combined, label = TRUE, repel = TRUE) + ggplot2::ggtitle('scATAC-seq self-clustering')
+p3 <- DimPlot( object=atac_combined, label = TRUE, repel = TRUE) + ggplot2::ggtitle('scATAC-seq self-clustering') + scale_y_reverse()
 ggsave("refilter.atac_harmonized_no_RNAseq_integration.clusters.pdf", p3)
 
 saveRDS(atac_combined, "refilter.atac_combined.harmonized_no_RNAseq_integration.RDS")
