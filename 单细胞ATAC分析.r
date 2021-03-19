@@ -122,12 +122,12 @@ ggsave('refilter.harmony_integration.pdf',p2)
 #dev.off()
 
 #for clustering only with ATAC, per request of reviewer
-atac_combined <- FindNeighbors(object = atac_combined, reduction = 'lsi', dims = 1:30)
-atac_combined <- FindClusters(object = atac_combined, verbose = FALSE, algorithm = 3)
+atac_combined <- FindNeighbors(object = atac_combined, reduction = 'harmony', dims = 1:30)
+atac_combined <- FindClusters(object = atac_combined,  verbose = FALSE, algorithm = 3)
 #atac_combined <- FindClusters(object = atac_combined, verbose = FALSE, algorithm = 3, resolution = 0.5)
 
-p3 <- DimPlot( object=atac_combined, group.by = 'ident', label = TRUE, repel = TRUE) + ggplot2::ggtitle('scATAC-seq self-clustering')
-ggsave("refilter.atac_harmonized_no_RNAseq_integration.clusters.pdf",p3)
+p3 <- DimPlot( object=atac_combined, label = TRUE, repel = TRUE) + ggplot2::ggtitle('scATAC-seq self-clustering')
+ggsave("refilter.atac_harmonized_no_RNAseq_integration.clusters.pdf", p3)
 
 saveRDS(atac_combined, "refilter.atac_combined.harmonized_no_RNAseq_integration.RDS")
 write.table(FetchData(atac_combined, "ident"), "refilter.atac_harmonized_no_RNAseq_integration.clusters.csv", sep=",", quote=F)
