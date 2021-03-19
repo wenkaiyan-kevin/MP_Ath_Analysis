@@ -131,5 +131,13 @@ ggsave("refilter.atac_harmonized_no_RNAseq_integration.clusters.pdf", p3)
 
 saveRDS(atac_combined, "refilter.atac_combined.harmonized_no_RNAseq_integration.RDS")
 write.table(FetchData(atac_combined, "ident"), "refilter.atac_harmonized_no_RNAseq_integration.clusters.csv", sep=",", quote=F)
+umap <- cbind("Barcode" = rownames(Embeddings(object = atac_combined, reduction = "umap")), 
+              Embeddings(object = atac_combined, reduction = "umap"))
+write.table(umap, file="refilter.atac_harmonized_no_RNAseq_integration.umap.csv", 
+            sep = ",", quote = F, row.names = F, col.names = T)
+
+
+
+
 
 
