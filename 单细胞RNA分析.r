@@ -116,11 +116,32 @@ rep5 <- NormalizeData(rep5)
 rep5 <- FindVariableFeatures(rep5, selection.method = "vst", nfeatures = 2000)
 
 #####################################################################################
+# select features that are repeatedly variable across datasets for integration
+features <- SelectIntegrationFeatures(object.list = list(WT1,WT2,WT3,rep1,rep2,rep3,rep4,rep5))
 
-protocol.anchors <- FindIntegrationAnchors(object.list = list(WT1,WT2,WT3,rep1,rep2,rep3,rep4,rep5), dims = 1:20)
-protocol.combined <- IntegrateData(anchorset = protocol.anchors, dims = 1:20)
+protocol.anchors <- FindIntegrationAnchors(object.list = list(WT1,WT2,WT3,rep1,rep2,rep3,rep4,rep5),
+                                           dims = 1:50,
+                                           anchor.features = features,
+                                           reduction = "cca")
+
+protocol.combined <- IntegrateData(anchorset = protocol.anchors, dims = 1:50)
 
 DefaultAssay(protocol.combined) <- "integrated"
+
+protocol.combined <- ScaleData(protocol.combined, verbose = FALSE)
+protocol.combined <- RunPCA(protocol.combined, npcs = 50, verbose = FALSE)
+protocol.combined <- RunUMAP(protocol.combined, reduction = "pca", dims = 1:50)
+protocol.combined <- FindNeighbors(protocol.combined, reduction = "pca", dims = 1:50)
+protocol.combined <- FindClusters(protocol.combined, resolution = 0.5)
+
+pdf("splitdimplot-umap.pdf", width =12, height = 8)
+DimPlot(protocol.combined, reduction = "umap", label = TRUE, repel = TRUE)
+dev.off()
+
+pdf("splitdimplot-tech-umap.pdf", width =12, height = 8)
+DimPlot(protocol.combined, reduction = "umap", group.by = "tech")
+dev.off()
+
 pdf("vlnPlot-Genes.pdf")
 VlnPlot(protocol.combined, features=c("nFeature_RNA"), pt.size=0)
 dev.off()
@@ -130,19 +151,8 @@ dev.off()
 pdf("vlnPlot-Mito.pdf")
 VlnPlot(protocol.combined, features=c("percent.mt"), pt.size=0)
 dev.off()
-protocol.combined <- ScaleData(protocol.combined, verbose = FALSE)
-protocol.combined <- RunPCA(protocol.combined, npcs = 20, verbose = FALSE)
-protocol.combined <- RunUMAP(protocol.combined, reduction = "pca", dims = 1:20)
-protocol.combined <- FindNeighbors(protocol.combined, reduction = "pca", dims = 1:20)
-protocol.combined <- FindClusters(protocol.combined, resolution = 0.5)
 
-pdf("splitdimplot-umap.pdf")
-DimPlot(protocol.combined, reduction = "umap")
-dev.off()
 
-pdf("splitdimplot-tech-umap.pdf")
-DimPlot(protocol.combined, reduction = "umap", split.by = "tech")
-dev.off()
 
 write.table(table(protocol.combined@meta.data$seurat_clusters, protocol.combined@meta.data$orig.ident), "cluster_counts.txt", sep="\t", quote=F)
 write.table(prop.table(table(protocol.combined@meta.data$seurat_clusters, protocol.combined@meta.data$orig.ident),2), "cluster_proportions.by_sample.txt", sep="\t", quote=F)
